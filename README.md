@@ -1,11 +1,11 @@
 # SimpleComponentCopy
-### A simple Component copier for the Unity Editor
+### A Simple Component Copier For The Unity Editor
 
-Used to copy components from one GameObject to another in the Unity Editor. Essentially a copy paste for generic components and component types.
+Used to copy Component objects from one GameObject to another in the Unity Editor. Essentially a copy paste for generic components and component types. A work-in-progress, happy for any contributions.
 
 ### Setup
 
-Clone the repo to a folder in your assets and it when the editor picks this up it will be loaded.
+Clone the repo to a folder in your asset for a fresh project and when the editor picks this up it will be loaded.
 
 Access the window for this tool from within the editor Windows > SimpleComponentCopy.
 
