@@ -1,5 +1,5 @@
 # SimpleComponentCopy
-## A simple Component copier for the Unity Editor
+### A simple Component copier for the Unity Editor
 
 Used to copy components from one GameObject to another in the Unity Editor. Essentially a copy paste for generic components and component types.
 
