@@ -1,0 +1,12 @@
+{
+    "name": "com.firemonkeh.simplecomponentcopy",
+    "version": "1.0.0",
+    "displayName": "simplecomponentcopy",
+    "description": "SimpleComponentCopy for Unity",
+    "unity": "2022.3",
+    "author": {
+      "name": "firemonkeh",
+      "url": "http://firemonkeh.com"
+    }
+  }
+  
