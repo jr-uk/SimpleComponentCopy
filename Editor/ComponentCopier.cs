@@ -16,7 +16,7 @@ public class SimpleComponentCopy : EditorWindow
     [MenuItem("Tools/Component Copier")]
     public static void ShowWindow()
     {
-        GetWindow<ComponentCopier>("Component Copier");
+        GetWindow<SimpleComponentCopy>("Component Copier");
     }
 
     void OnGUI()
@@ -89,7 +89,7 @@ public class SimpleComponentCopy : EditorWindow
                 {
                     foreach (GameObject obj in targetGameObjects)
                     {
-                        CopyComponentUtils.Copy(item.Key ,obj);
+                        SimpleComponentCopyUtils.Copy(item.Key ,obj);
                     }
                 }
                 //sourcePrefab
