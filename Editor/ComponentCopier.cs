@@ -8,7 +8,7 @@ using System.Reflection;
 public class SimpleComponentCopy : EditorWindow
 {
     private GameObject sourceGameObject;
-    private Dictionary<Component, bool> toggleStatusDictionary = new Dictionary<Component, bool>();
+    private Dictionary<Component, bool> componentToCopyDictionary = new Dictionary<Component, bool>();
 
     [MenuItem("Tools/SimpleComponentCopy")]
     public static void ShowWindow()
@@ -24,7 +24,7 @@ public class SimpleComponentCopy : EditorWindow
 
     private void DrawCopyToSelectedGameObjectsButton()
     {
-        GUI.enabled = toggleStatusDictionary.Any(kvp => kvp.Value);
+        GUI.enabled = componentToCopyDictionary.Any(kvp => kvp.Value);
 
         if (GUILayout.Button("Copy to Selected GameObjects"))
         {
@@ -65,12 +65,13 @@ public class SimpleComponentCopy : EditorWindow
         sourceGameObject = GetSelectedObjects().FirstOrDefault(); 
 
         Component[] sourceComponents = GetObjectComponents(sourceGameObject);
+        if(sourceComponents == null) {return;}
         
-        toggleStatusDictionary.Clear(); // Clear previous selections
+        componentToCopyDictionary.Clear(); // Clear previous selections
         foreach (var component in sourceComponents)
         {
             // Initialize dictionary entries without a loop
-            toggleStatusDictionary[component] = false; // Default to false, assume GUI layout in another method
+            componentToCopyDictionary[component] = false; // Default to false, assume GUI layout in another method
         }
         SendMessageToUser("Source Set: " + sourceGameObject.name);
     }
@@ -78,7 +79,7 @@ public class SimpleComponentCopy : EditorWindow
     private void CopyComponentsToSelectedGameObjects()
     {
         // Assuming targetGameObjects is initialized and populated elsewhere
-        foreach (var item in toggleStatusDictionary.Where(kvp => kvp.Value))
+        foreach (var item in componentToCopyDictionary.Where(kvp => kvp.Value))
         {
             // Assuming existence of targetGameObjects list, add error checking as needed
             foreach (GameObject obj in GetSelectedObjects())
@@ -119,9 +120,10 @@ public static class SimpleComponentCopyUtils {
                     // Copy the value from the original to the copy
                     prop.SetValue(copy, prop.GetValue(source, null), null);
                 }
-                catch
+                catch (Exception e)
                 {
-                    // Handle cases where some properties might not be directly copied (e.g., properties with no setter or properties that depend on runtime state)
+                    Debug.Log("Property copy error");
+                    Debug.LogException(e); 
                 }
             }
         }
