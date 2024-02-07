@@ -10,6 +10,7 @@ public class SimpleComponentCopy : EditorWindow
     private GameObject sourceGameObject;
     private Dictionary<Component, bool> componentToCopyDictionary = new Dictionary<Component, bool>();
     private List<Component> sourceComponents = new List<Component>();
+    private Type[] nonCopyableTypes = { typeof(Transform), typeof(MeshFilter), typeof(MeshRenderer) };
 
     [MenuItem("Tools/SimpleComponentCopy")]
     public static void ShowWindow()
@@ -20,23 +21,24 @@ public class SimpleComponentCopy : EditorWindow
     void OnGUI()
     {
         DrawSourceGameObjectButton();
+        DrawSourceGameObjectComponents(); // Ensure this is called here to draw toggles
         DrawCopyToSelectedGameObjectsButton();
         
     }
 
     private void DrawSourceGameObjectComponents()
     {
-        if(componentToCopyDictionary.Count > 0) {componentToCopyDictionary.Clear();} // Clear previous selections
-
-        if(componentToCopyDictionary.Count == 0 || componentToCopyDictionary == null)
+        if (componentToCopyDictionary != null && componentToCopyDictionary.Count > 0)
         {
-            foreach (var component in sourceComponents)
+            foreach (var componentEntry in componentToCopyDictionary.ToList()) // Use ToList to allow modification
             {
-                bool toggleValue = EditorGUILayout.Toggle(component.name, componentToCopyDictionary[component]);
-                componentToCopyDictionary.Add(component, toggleValue); 
+                // Draw a toggle for each component and update its value in the dictionary
+                bool newValue = EditorGUILayout.Toggle(componentEntry.Key.GetType().Name, componentEntry.Value);
+                componentToCopyDictionary[componentEntry.Key] = newValue;
             }
         }
     }
+
 
     private void DrawCopyToSelectedGameObjectsButton()
     {
@@ -76,23 +78,28 @@ public class SimpleComponentCopy : EditorWindow
 
     private void SetSourceGameObject()
     {
-        if (GetSelectedObjects().Count != 1)
+        var selectedObjects = GetSelectedObjects();
+        if (selectedObjects.Count != 1)
         {
             SendMessageToUser("Select only one source object");
             return;
         }
 
-        sourceGameObject = GetSelectedObjects().FirstOrDefault(); 
-
+        sourceGameObject = selectedObjects.FirstOrDefault();
         sourceComponents = GetObjectComponents(sourceGameObject);
-        if(sourceComponents == null) 
+        componentToCopyDictionary.Clear(); // Clear and repopulate the dictionary
+
+        foreach (var component in sourceComponents)
         {
-            Debug.Log("No source components");
-            return;
+            if (component != null && !nonCopyableTypes.Contains(component.GetType()))
+            {
+                componentToCopyDictionary[component] = false; // Initialize to false
+            }
         }
-        
+
         SendMessageToUser("Source Set: " + sourceGameObject.name);
     }
+
 
     private void CopyComponentsToSelectedGameObjects()
     {
