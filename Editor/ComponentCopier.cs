@@ -111,6 +111,7 @@ public class SimpleComponentCopy : EditorWindow
 }
 
 public static class SimpleComponentCopyUtils {
+    // private static Type[] nonCopyableTypes = { typeof(Transform), typeof(MeshFilter), typeof(MeshRenderer) };
     public static void Copy<T>(T source, GameObject target) where T : Component
     {
         T copy = target.AddComponent<T>();
