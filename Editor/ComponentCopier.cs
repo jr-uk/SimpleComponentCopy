@@ -114,73 +114,10 @@ public class SimpleComponentCopy : EditorWindow
 public static class SimpleComponentCopyUtils {
     public static void Copy<T>(T source, GameObject target) where T : Component
     {
-        T copy = target.AddComponent<T>();
-
-        Type type = source.GetType();
-
-        // Copy the fields
-        foreach (FieldInfo field in type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
-        {
-            field.SetValue(copy, field.GetValue(source));
-        }
-
-        foreach (PropertyInfo prop in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
-        {
-            // Check if the property can be written to and is not a known problematic property
-            if (prop.CanWrite && prop.GetSetMethod(true) != null && IsNotProblematicProperty(prop))
-            {
-                try
-                {
-                    // Copy the value from the original to the copy
-                    prop.SetValue(copy, prop.GetValue(source, null), null);
-                }
-                catch (Exception e)
-                {
-                    Debug.Log($"Property copy error: {prop.Name}, Error: {e.Message}");
-                }
-            }
-        }
+        // Simply add a new component of the same type to the target GameObject.
+        // This does not attempt to copy field or property values from the source.
+        target.AddComponent<T>();
     }
-
-    private static bool IsNotProblematicProperty(PropertyInfo prop)
-    {
-        // List of problematic property names
-        var problematicProperties = new HashSet<string>
-        {
-            "name", // Managed by Unity, might not be unique if copied directly.
-            "tag", // Similar to name, could lead to issues if not unique.
-            "position", // Transform property that should be set through Transform methods.
-            "rotation", // Transform property that should be set through Transform methods.
-            "localPosition", // Managed by Unity's Transform component.
-            "localRotation", // Managed by Unity's Transform component.
-            "localScale", // Managed by Unity's Transform component.
-            // Add any other properties you find problematic during copying.
-        };
-
-        // Check if the property's name is in the list of problematic properties
-        if (problematicProperties.Contains(prop.Name))
-        {
-            return false; // Property is problematic, should not be copied.
-        }
-
-        // Example of excluding properties by declaring type to handle component-specific properties
-        if (prop.DeclaringType == typeof(MeshRenderer) && prop.Name == "material")
-        {
-            return false; // Avoid copying the material directly as it can lead to shared material issues.
-        }
-
-        // Example of excluding properties based on custom attributes (e.g., properties marked as [NonSerialized])
-        if (prop.GetCustomAttributes(typeof(NonSerializedAttribute), true).Length > 0)
-        {
-            return false; // Property is marked as non-serializable and should not be copied.
-        }
-
-        // Add more conditions as needed based on the components and properties you're working with.
-
-        return true; // If none of the conditions are met, the property is not considered problematic.
-    }
-
-
 
     public static List<GameObject> GetSelectedObjects()
     {
