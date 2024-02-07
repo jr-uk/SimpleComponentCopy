@@ -9,6 +9,7 @@ public class SimpleComponentCopy : EditorWindow
 {
     private GameObject sourceGameObject;
     private Dictionary<Component, bool> componentToCopyDictionary = new Dictionary<Component, bool>();
+    private List<Component> sourceComponents = new List<Component>();
 
     [MenuItem("Tools/SimpleComponentCopy")]
     public static void ShowWindow()
@@ -20,6 +21,21 @@ public class SimpleComponentCopy : EditorWindow
     {
         DrawSourceGameObjectButton();
         DrawCopyToSelectedGameObjectsButton();
+        
+    }
+
+    private void DrawSourceGameObjectComponents()
+    {
+        if(componentToCopyDictionary.Count > 0) {componentToCopyDictionary.Clear();} // Clear previous selections
+
+        if(componentToCopyDictionary.Count == 0 || componentToCopyDictionary == null)
+        {
+            foreach (var component in sourceComponents)
+            {
+                bool toggleValue = EditorGUILayout.Toggle(component.name, componentToCopyDictionary[component]);
+                componentToCopyDictionary.Add(component, toggleValue); 
+            }
+        }
     }
 
     private void DrawCopyToSelectedGameObjectsButton()
@@ -39,6 +55,7 @@ public class SimpleComponentCopy : EditorWindow
         if (GUILayout.Button("Select Source GameObject"))
         {
             SetSourceGameObject();
+            DrawSourceGameObjectComponents();
         }
     }
 
@@ -48,9 +65,12 @@ public class SimpleComponentCopy : EditorWindow
         return selectedGameObjects;
     }
 
-    private Component[] GetObjectComponents (GameObject obj)
+    private List<Component> GetObjectComponents (GameObject obj)
     {
-        Component[] components = obj.GetComponents<Component>();
+        List<Component> components = new List<Component>();
+
+        components.AddRange(obj.GetComponents<Component>());
+        
         return components;
     }
 
@@ -64,24 +84,20 @@ public class SimpleComponentCopy : EditorWindow
 
         sourceGameObject = GetSelectedObjects().FirstOrDefault(); 
 
-        Component[] sourceComponents = GetObjectComponents(sourceGameObject);
-        if(sourceComponents == null) {return;}
-        
-        componentToCopyDictionary.Clear(); // Clear previous selections
-        foreach (var component in sourceComponents)
+        sourceComponents = GetObjectComponents(sourceGameObject);
+        if(sourceComponents == null) 
         {
-            // Initialize dictionary entries without a loop
-            componentToCopyDictionary[component] = false; // Default to false, assume GUI layout in another method
+            Debug.Log("No source components");
+            return;
         }
+        
         SendMessageToUser("Source Set: " + sourceGameObject.name);
     }
 
     private void CopyComponentsToSelectedGameObjects()
     {
-        // Assuming targetGameObjects is initialized and populated elsewhere
         foreach (var item in componentToCopyDictionary.Where(kvp => kvp.Value))
         {
-            // Assuming existence of targetGameObjects list, add error checking as needed
             foreach (GameObject obj in GetSelectedObjects())
             {
                 SimpleComponentCopyUtils.Copy(item.Key ,obj);
@@ -91,7 +107,6 @@ public class SimpleComponentCopy : EditorWindow
 
     void SendMessageToUser(string message)
     {
-        // Implementation depends on desired method of user feedback
         // For simplicity, could use Debug.Log for now
         Debug.Log(message);
     }
