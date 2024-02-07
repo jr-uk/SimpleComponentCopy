@@ -5,6 +5,11 @@ using System.Linq;
 using System;
 using System.Reflection;
 
+/// <summary>
+/// A component copier - should filter out unwanted components and handle most errors
+/// 
+/// The code needs a refactor for readability
+/// </summary>
 public class SimpleComponentCopy : EditorWindow
 {
     private GameObject sourceGameObject;
