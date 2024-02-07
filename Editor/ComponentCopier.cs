@@ -7,11 +7,8 @@ using System.Reflection;
 
 public class SimpleComponentCopy : EditorWindow
 {
-    private GameObject sourcePrefab;
-    private List<Component> componentsToCopy;
-    private List<GameObject> targetGameObjects;
-    private Dictionary<Component, bool> toggleStatusDictionary;
-
+    private GameObject sourceGameObject;
+    private Dictionary<Component, bool> toggleStatusDictionary = new Dictionary<Component, bool>();
 
     [MenuItem("Tools/Component Copier")]
     public static void ShowWindow()
@@ -21,117 +18,81 @@ public class SimpleComponentCopy : EditorWindow
 
     void OnGUI()
     {
+        DrawSourceGameObjectButton();
+        DrawCopyToSelectedGameObjectsButton();
+    }
 
-
-
-        if (GUILayout.Button("Select Source GameObject"))
-        {
-            try
-            {
-                if (Selection.gameObjects.Length == 1) // FIXME: This might need to be done via method ? GetLength
-                {
-                    sourcePrefab = Selection.gameObjects[0]; // FIXME: needs type safety
-                    // TODO: Display what is selected
-
-                    Component[] sourceComponents = sourcePrefab.GetComponents<Component>();
-
-                    foreach (var component in sourceComponents)
-                    {
-                        // Create a label and button to select the relevant component
-                        toggleStatusDictionary.Add(component, EditorGUILayout.Toggle(component.GetType().Name, false));
-                    }
-
-                }
-                else
-                {
-                    SendMessageToUser("Select only one source object");
-                }
-
-
-
-            }
-            catch (System.Exception)
-            {
-                throw;
-            }
-        }
-
-        if (GUILayout.Button("Select Target GameObjects"))
-        {
-            SelectTargetObjects();
-        }
-
-
-        if (componentsToCopy != null)
-        {
-            foreach (var component in componentsToCopy)
-            {
-                // TODO: Display the components
-
-            }
-        }
-
-        if (toggleStatusDictionary != null && toggleStatusDictionary.Count >= 1)
-        {
-            GUI.enabled = true;
-        }
-        else 
-        {
-            GUI.enabled = false;
-        }
+    private void DrawCopyToSelectedGameObjectsButton()
+    {
+        GUI.enabled = toggleStatusDictionary.Any(kvp => kvp.Value);
 
         if (GUILayout.Button("Copy to Selected GameObjects"))
         {
-            
-            foreach (KeyValuePair<Component, bool> item in toggleStatusDictionary)
-            {
-                if(item.Value)
-                {
-                    foreach (GameObject obj in targetGameObjects)
-                    {
-                        SimpleComponentCopyUtils.Copy(item.Key ,obj);
-                    }
-                }
-                //sourcePrefab
-                //     GameObject instantiatedPrefab = PrefabUtility.InstantiatePrefab(sourcePrefab) as GameObject;
-                //     if (instantiatedPrefab != null)
-                //     {
-                //         Component copy = instantiatedPrefab.AddComponent(componentToCopy.GetType());
-                //         EditorUtility.CopySerialized(componentToCopy, copy);
+            CopyComponentsToSelectedGameObjects();
+        }
 
-                //         PrefabUtility.SaveAsPrefabAsset(instantiatedPrefab, AssetDatabase.GetAssetPath(sourcePrefab));
+        GUI.enabled = true; // Reset GUI state
+    }
 
-                //         Destroy(instantiatedPrefab);
-                //         Destroy(copy);
-                //     }
-            }
+    private void DrawSourceGameObjectButton()
+    {
+        if (GUILayout.Button("Select Source GameObject"))
+        {
+            SetSourceGameObject();
         }
     }
 
-    private void SelectTargetObjects()
+    private List<GameObject> GetSelectedObjects()
     {
-        try
+        List<GameObject> selectedGameObjects = Selection.gameObjects.ToList(); // Ensures list is not null
+        return selectedGameObjects;
+    }
+
+    private Component[] GetObjectComponents (GameObject obj)
+    {
+        Component[] components = obj.GetComponents<Component>();
+        return components;
+    }
+
+    private void SetSourceGameObject()
+    {
+        if (GetSelectedObjects().Count != 1)
         {
-            if (targetGameObjects == null)
-            {
-                targetGameObjects.AddRange(Selection.gameObjects); // FIXME: needs type safety
-            }
-            else
-            {
-                targetGameObjects.Clear();
-                targetGameObjects.AddRange(Selection.gameObjects); // FIXME: needs type safety
-            }
-            
+            SendMessageToUser("Select only one source object");
+            return;
         }
-        catch (System.Exception)
+
+        sourceGameObject = GetSelectedObjects().FirstOrDefault(); 
+
+        Component[] sourceComponents = GetObjectComponents(sourceGameObject);
+        
+        toggleStatusDictionary.Clear(); // Clear previous selections
+        foreach (var component in sourceComponents)
         {
-            throw;
+            // Initialize dictionary entries without a loop
+            toggleStatusDictionary[component] = false; // Default to false, assume GUI layout in another method
+        }
+        SendMessageToUser("Source Set: " + sourceGameObject.name);
+    }
+
+    private void CopyComponentsToSelectedGameObjects()
+    {
+        // Assuming targetGameObjects is initialized and populated elsewhere
+        foreach (var item in toggleStatusDictionary.Where(kvp => kvp.Value))
+        {
+            // Assuming existence of targetGameObjects list, add error checking as needed
+            foreach (GameObject obj in GetSelectedObjects())
+            {
+                SimpleComponentCopyUtils.Copy(item.Key ,obj);
+            }
         }
     }
 
     void SendMessageToUser(string message)
     {
-        throw new NotImplementedException();
+        // Implementation depends on desired method of user feedback
+        // For simplicity, could use Debug.Log for now
+        Debug.Log(message);
     }
 }
 
