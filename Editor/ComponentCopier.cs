@@ -10,10 +10,10 @@ public class SimpleComponentCopy : EditorWindow
     private GameObject sourceGameObject;
     private Dictionary<Component, bool> toggleStatusDictionary = new Dictionary<Component, bool>();
 
-    [MenuItem("Tools/Component Copier")]
+    [MenuItem("Tools/SimpleComponentCopy")]
     public static void ShowWindow()
     {
-        GetWindow<SimpleComponentCopy>("Component Copier");
+        GetWindow<SimpleComponentCopy>("SimpleComponentCopy");
     }
 
     void OnGUI()
