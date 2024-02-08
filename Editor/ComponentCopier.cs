@@ -24,13 +24,13 @@ public class SimpleComponentCopy : EditorWindow
         GetWindow<SimpleComponentCopy>("SimpleComponentCopy");
     }
 
-    
+
     void OnGUI()
     {
         DrawSourceGameObjectButton();
         DrawSourceGameObjectComponents(); // Ensure this is called here to draw toggles
         DrawCopyToSelectedGameObjectsButton();
-        
+
     }
 
     private void DrawSourceGameObjectComponents()
@@ -72,7 +72,7 @@ public class SimpleComponentCopy : EditorWindow
     /// </summary>
     private void SetSourceGameObject()
     {
-        var selectedObjects = SimpleComponentCopyUtils.GetSelectedObjects();
+        var selectedObjects = CopyUtils.GetSelectedObjects();
         if (selectedObjects.Count != 1)
         {
             SendMessageToUser("Select only one source object");
@@ -80,7 +80,7 @@ public class SimpleComponentCopy : EditorWindow
         }
 
         sourceGameObject = selectedObjects.FirstOrDefault(); // Get first object
-        sourceComponents = SimpleComponentCopyUtils.GetObjectComponents(sourceGameObject); // Get Components of object
+        sourceComponents = CopyUtils.GetObjectComponents(sourceGameObject); // Get Components of object
         componentToCopyDictionary.Clear(); // Clear the dictionary
 
         foreach (var component in sourceComponents)
@@ -96,14 +96,14 @@ public class SimpleComponentCopy : EditorWindow
 
     private void CopyComponentsToSelectedGameObjects()
     {
-        if (sourceGameObject == null) {Debug.Log("Null Source");return;}
+        if (sourceGameObject == null) { Debug.Log("Null Source"); return; }
         foreach (var item in componentToCopyDictionary.Where(kvp => kvp.Value))
         {
             Debug.Log("Copying: " + item.Key.ToString());
-            foreach (GameObject obj in SimpleComponentCopyUtils.GetSelectedObjects())
+            foreach (GameObject obj in CopyUtils.GetSelectedObjects())
             {
                 Debug.Log("Copying: " + item.Key.ToString() + " To Object: " + obj.gameObject.name);
-                SimpleComponentCopyUtils.Copy(item.Key, obj);
+                CopyUtils.Copy(item.Key, obj);
             }
         }
     }
@@ -115,7 +115,8 @@ public class SimpleComponentCopy : EditorWindow
     }
 }
 
-public static class SimpleComponentCopyUtils {
+public static class CopyUtils
+{
     public static void Copy(Component comp, GameObject obj)
     {
         // Simply add a new component of the same type to the target GameObject.
@@ -129,12 +130,10 @@ public static class SimpleComponentCopyUtils {
         return selectedGameObjects;
     }
 
-    public static List<Component> GetObjectComponents (GameObject obj)
+    public static List<Component> GetObjectComponents(GameObject obj)
     {
         List<Component> components = new List<Component>();
-
         components.AddRange(obj.GetComponents<Component>());
-        
         return components;
     }
 }
