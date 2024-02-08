@@ -7,6 +7,7 @@ Note: It does not copy field and property contents, just creates components of t
 
 ### Setup
 Open the package manager and click the plus sign and enter the URL below to add the project
+
 https://github.com/jr-uk/SimpleComponentCopy.git
 
 ![image](https://github.com/jr-uk/SimpleComponentCopy/assets/10715164/97d43568-1591-4377-9c76-3a9788b4ab73)
