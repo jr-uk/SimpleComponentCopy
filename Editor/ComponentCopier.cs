@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using System.Reflection;
+using Unity.VisualScripting;
 
 /// <summary>
 /// A component copier - should filter out unwanted components and handle most errors
@@ -95,11 +96,14 @@ public class SimpleComponentCopy : EditorWindow
 
     private void CopyComponentsToSelectedGameObjects()
     {
+        if (sourceGameObject == null) {Debug.Log("Null Source");return;}
         foreach (var item in componentToCopyDictionary.Where(kvp => kvp.Value))
         {
+            Debug.Log("Copying: " + item.Key.ToString());
             foreach (GameObject obj in SimpleComponentCopyUtils.GetSelectedObjects())
             {
-                SimpleComponentCopyUtils.Copy(item.Key ,obj);
+                Debug.Log("Copying: " + item.Key.ToString() + " To Object: " + obj.gameObject.name);
+                SimpleComponentCopyUtils.Copy(item.Key, obj);
             }
         }
     }
@@ -112,11 +116,11 @@ public class SimpleComponentCopy : EditorWindow
 }
 
 public static class SimpleComponentCopyUtils {
-    public static void Copy<T>(T source, GameObject target) where T : Component
+    public static void Copy(Component comp, GameObject obj)
     {
         // Simply add a new component of the same type to the target GameObject.
         // This does not attempt to copy field or property values from the source.
-        target.AddComponent<T>();
+        obj.AddComponent(comp.GetType());
     }
 
     public static List<GameObject> GetSelectedObjects()
