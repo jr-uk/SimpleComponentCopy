@@ -3,6 +3,8 @@
 
 Used to copy Component objects from one GameObject to another in the Unity Editor. Essentially a copy paste for components. Is functional now, happy for any contributions or feedback.
 
+Note: It does not copy field and property contents, just creates components of the same type.
+
 ### Setup
 Open the package manager and click the plus sign and enter the URL below to add the project
 https://github.com/jr-uk/SimpleComponentCopy.git
